@@ -1,30 +1,27 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
+import { loadHistory, clearHistory } from '../utils/history'
 
 function HistoryPage() {
-  const [history, setHistory] = useState([])
+  const [history, setHistory] = useState(() => loadHistory())
   const [filter, setFilter] = useState('all')
-  const [expandedIndex, setExpandedIndex] = useState(null)
+  const [sortMode, setSortMode] = useState('time') // 'time' (newest first) | 'alpha'
+  const [expandedId, setExpandedId] = useState(null)
 
-  useEffect(() => {
-    loadHistory()
-  }, [])
-
-  const loadHistory = () => {
-    const savedHistory = JSON.parse(localStorage.getItem('triageHistory') || '[]')
-    setHistory(savedHistory)
-  }
-
-  const clearHistory = () => {
+  const handleClear = () => {
     if (window.confirm('Are you sure you want to clear all history?')) {
-      localStorage.setItem('triageHistory', '[]')
+      clearHistory()
       setHistory([])
     }
   }
 
-  const sortedHistory = [...history].sort((a, b) => 
-    a.message.localeCompare(b.message)
-  )
+  const sortedHistory = [...history].sort((a, b) => {
+    if (sortMode === 'time') {
+      return new Date(b.timestamp) - new Date(a.timestamp) // newest first
+    }
+    return a.message.localeCompare(b.message)
+  })
   
   const filteredHistory = filter === 'all' 
     ? sortedHistory 
@@ -43,7 +40,7 @@ function HistoryPage() {
             </div>
             {history.length > 0 && (
               <button
-                onClick={clearHistory}
+                onClick={handleClear}
                 className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 font-semibold"
               >
                 Clear All
@@ -51,32 +48,54 @@ function HistoryPage() {
             )}
           </div>
 
-          {/* Filter Buttons */}
+          {/* Filter + Sort Controls */}
           {history.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              <button
-                onClick={() => setFilter('all')}
-                className={`px-4 py-2 rounded-lg font-semibold ${
-                  filter === 'all'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                All ({history.length})
-              </button>
-              {categories.map(category => (
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <div className="flex flex-wrap gap-2">
                 <button
-                  key={category}
-                  onClick={() => setFilter(category)}
+                  onClick={() => setFilter('all')}
                   className={`px-4 py-2 rounded-lg font-semibold ${
-                    filter === category
+                    filter === 'all'
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {category} ({history.filter(h => h.category === category).length})
+                  All ({history.length})
                 </button>
-              ))}
+                {categories.map(category => (
+                  <button
+                    key={category}
+                    onClick={() => setFilter(category)}
+                    className={`px-4 py-2 rounded-lg font-semibold ${
+                      filter === category
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {category} ({history.filter(h => h.category === category).length})
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500 font-semibold">Sort:</span>
+                {[
+                  { mode: 'time', label: 'Newest' },
+                  { mode: 'alpha', label: 'A–Z' },
+                ].map(opt => (
+                  <button
+                    key={opt.mode}
+                    onClick={() => setSortMode(opt.mode)}
+                    className={`px-3 py-2 rounded-lg font-semibold ${
+                      sortMode === opt.mode
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -89,24 +108,24 @@ function HistoryPage() {
             <p className="text-gray-500 mb-6">
               Analyzed messages will appear here
             </p>
-            <a
-              href="/analyze"
+            <Link
+              to="/analyze"
               className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
             >
               Analyze a Message
-            </a>
+            </Link>
           </div>
         )}
 
         <div className="space-y-4">
-          {filteredHistory.map((item, index) => (
+          {filteredHistory.map((item) => (
             <div
-              key={index}
+              key={item.timestamp}
               className="bg-white rounded-lg shadow-md overflow-hidden"
             >
               <div
                 className="p-4 cursor-pointer hover:bg-gray-50"
-                onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
+                onClick={() => setExpandedId(expandedId === item.timestamp ? null : item.timestamp)}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -130,12 +149,12 @@ function HistoryPage() {
                     </div>
                   </div>
                   <div className="text-gray-400 ml-4">
-                    {expandedIndex === index ? '▲' : '▼'}
+                    {expandedId === item.timestamp ? '▲' : '▼'}
                   </div>
                 </div>
               </div>
 
-              {expandedIndex === index && (
+              {expandedId === item.timestamp && (
                 <div className="border-t border-gray-200 p-4 bg-gray-50">
                   <div className="space-y-3">
                     <div>

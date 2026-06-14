@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { categorizeMessage } from '../utils/llmHelper'
-import { calculateUrgency } from '../utils/urgencyScorer'
-import { getRecommendedAction } from '../utils/templates'
+import { addToHistory } from '../utils/history'
 
 function AnalyzePage() {
   const [message, setMessage] = useState('')
@@ -28,14 +27,10 @@ function AnalyzePage() {
     setResults(null)
     
     try {
-      // Run categorization (LLM call)
-      const { category, reasoning } = await categorizeMessage(message)
-      
-      // Calculate urgency (rule-based)
-      const urgency = calculateUrgency(message)
-      
-      // Get recommended action (template-based)
-      const recommendedAction = getRecommendedAction(category)
+      // Categorize + assess urgency + recommend an action in one LLM call
+      // (rule-based fallbacks are applied inside categorizeMessage when the
+      // API is unavailable or returns an invalid value).
+      const { category, reasoning, urgency, recommendedAction } = await categorizeMessage(message)
       
       const analysisResult = {
         message,
@@ -49,9 +44,7 @@ function AnalyzePage() {
       setResults(analysisResult)
 
       // Save to history
-      const history = JSON.parse(localStorage.getItem('triageHistory') || '[]')
-      history.push(analysisResult)
-      localStorage.setItem('triageHistory', JSON.stringify(history))
+      addToHistory(analysisResult)
     } catch (error) {
       console.error('Error analyzing message:', error)
       alert('Error analyzing message. Please try again.')

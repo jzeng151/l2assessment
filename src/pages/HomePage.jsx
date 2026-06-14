@@ -1,26 +1,17 @@
-import { Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { loadHistory } from '../utils/history'
 
 function HomePage() {
-  const [stats, setStats] = useState({ total: 0, today: 0 })
-  const [recentActivity, setRecentActivity] = useState([])
+  const navigate = useNavigate()
 
-  useEffect(() => {
-    // Load stats from localStorage
-    const history = JSON.parse(localStorage.getItem('triageHistory') || '[]')
-    const today = new Date().toDateString()
-    const todayCount = history.filter(item => 
-      new Date(item.timestamp).toDateString() === today
-    ).length
-
-    setStats({
-      total: history.length,
-      today: todayCount
-    })
-
-    // Get recent 3 items
-    setRecentActivity(history.slice(-3).reverse())
-  }, [])
+  // Derived from localStorage at render time (no effect needed).
+  const history = loadHistory()
+  const today = new Date().toDateString()
+  const todayCount = history.filter(item =>
+    new Date(item.timestamp).toDateString() === today
+  ).length
+  const stats = { total: history.length, today: todayCount }
+  const recentActivity = history.slice(-3).reverse()
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -82,7 +73,7 @@ function HomePage() {
               ]
               const random = examples[Math.floor(Math.random() * examples.length)]
               localStorage.setItem('exampleMessage', random)
-              window.location.href = '/analyze'
+              navigate('/analyze')
             }}
             className="bg-orange-600 text-white rounded-lg p-6 hover:bg-orange-700 transition"
           >
@@ -105,7 +96,7 @@ function HomePage() {
                         {new Date(item.timestamp).toLocaleString()}
                       </div>
                       <div className="text-gray-700 truncate">
-                        "{item.message.substring(0, 60)}..."
+                        "{item.message.substring(0, 60)}{item.message.length > 60 ? '...' : ''}"
                       </div>
                       <div className="flex items-center space-x-2 mt-1">
                         <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
