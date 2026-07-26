@@ -5,6 +5,7 @@ function HistoryPage() {
   const [history, setHistory] = useState([])
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [urgencyFilter, setUrgencyFilter] = useState('all')
+  const [sortBy, setSortBy] = useState('newest')
   const [expandedIndex, setExpandedIndex] = useState(null)
 
   useEffect(() => {
@@ -23,9 +24,10 @@ function HistoryPage() {
     }
   }
 
-  const sortedHistory = [...history].sort((a, b) => 
-    a.message.localeCompare(b.message)
-  )
+  const sortedHistory = [...history].sort((a, b) => {
+    if (sortBy === 'alphabetical') return a.message.localeCompare(b.message)
+    return new Date(b.timestamp) - new Date(a.timestamp)
+  })
   
   const filteredHistory = sortedHistory.filter(item =>
     (categoryFilter === 'all' || item.category === categoryFilter) &&
@@ -56,6 +58,29 @@ function HistoryPage() {
           {/* Filter Buttons */}
           {history.length > 0 && (
             <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="font-semibold text-gray-700">Sort:</span>
+                <button
+                  onClick={() => setSortBy('newest')}
+                  className={`px-3 py-1 rounded font-semibold ${
+                    sortBy === 'newest'
+                      ? 'bg-gray-800 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Newest first
+                </button>
+                <button
+                  onClick={() => setSortBy('alphabetical')}
+                  className={`px-3 py-1 rounded font-semibold ${
+                    sortBy === 'alphabetical'
+                      ? 'bg-gray-800 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  A–Z
+                </button>
+              </div>
               <div className="flex flex-wrap gap-2">
                 <button
                 onClick={() => setCategoryFilter('all')}
