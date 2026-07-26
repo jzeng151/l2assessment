@@ -3,7 +3,8 @@ import ReactMarkdown from 'react-markdown'
 
 function HistoryPage() {
   const [history, setHistory] = useState([])
-  const [filter, setFilter] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [urgencyFilter, setUrgencyFilter] = useState('all')
   const [expandedIndex, setExpandedIndex] = useState(null)
 
   useEffect(() => {
@@ -26,9 +27,10 @@ function HistoryPage() {
     a.message.localeCompare(b.message)
   )
   
-  const filteredHistory = filter === 'all' 
-    ? sortedHistory 
-    : sortedHistory.filter(item => item.category === filter)
+  const filteredHistory = sortedHistory.filter(item =>
+    (categoryFilter === 'all' || item.category === categoryFilter) &&
+    (urgencyFilter === 'all' || item.urgency === urgencyFilter)
+  )
 
   const categories = [...new Set(history.map(item => item.category))]
 
@@ -53,30 +55,47 @@ function HistoryPage() {
 
           {/* Filter Buttons */}
           {history.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              <button
-                onClick={() => setFilter('all')}
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                <button
+                onClick={() => setCategoryFilter('all')}
                 className={`px-4 py-2 rounded-lg font-semibold ${
-                  filter === 'all'
+                  categoryFilter === 'all'
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
                 All ({history.length})
               </button>
-              {categories.map(category => (
-                <button
+                {categories.map(category => (
+                  <button
                   key={category}
-                  onClick={() => setFilter(category)}
+                  onClick={() => setCategoryFilter(category)}
                   className={`px-4 py-2 rounded-lg font-semibold ${
-                    filter === category
+                    categoryFilter === category
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
                   {category} ({history.filter(h => h.category === category).length})
-                </button>
-              ))}
+                  </button>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {['all', 'High', 'Medium', 'Low'].map(urgency => (
+                  <button
+                  key={urgency}
+                  onClick={() => setUrgencyFilter(urgency)}
+                  className={`px-4 py-2 rounded-lg font-semibold ${
+                    urgencyFilter === urgency
+                      ? 'bg-red-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {urgency === 'all' ? 'All Urgency' : `${urgency} Urgency`} ({urgency === 'all' ? history.length : history.filter(h => h.urgency === urgency).length})
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
