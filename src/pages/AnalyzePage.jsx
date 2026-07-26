@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { categorizeMessage } from '../utils/llmHelper'
-import { calculateUrgency } from '../utils/urgencyScorer'
-import { getRecommendedAction } from '../utils/templates'
 
 function AnalyzePage() {
   const [message, setMessage] = useState('')
@@ -29,13 +27,7 @@ function AnalyzePage() {
     
     try {
       // Run categorization (LLM call)
-      const { category, urgency: llmUrgency, reasoning, recommendedAction: llmRecommendedAction } = await categorizeMessage(message)
-      
-      // Calculate urgency (rule-based)
-      const urgency = llmUrgency || calculateUrgency(message)
-      
-      // Get recommended action (template-based)
-      const recommendedAction = llmRecommendedAction || getRecommendedAction(category, urgency, message)
+      const { category, urgency, reasoning, recommendedAction, source } = await categorizeMessage(message)
       
       const analysisResult = {
         message,
@@ -43,6 +35,7 @@ function AnalyzePage() {
         urgency,
         recommendedAction,
         reasoning,
+        source,
         timestamp: new Date().toISOString()
       }
 
