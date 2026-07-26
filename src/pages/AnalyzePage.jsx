@@ -29,13 +29,13 @@ function AnalyzePage() {
     
     try {
       // Run categorization (LLM call)
-      const { category, reasoning } = await categorizeMessage(message)
+      const { category, reasoning, recommendedAction: llmRecommendedAction } = await categorizeMessage(message)
       
       // Calculate urgency (rule-based)
       const urgency = calculateUrgency(message)
       
       // Get recommended action (template-based)
-      const recommendedAction = getRecommendedAction(category)
+      const recommendedAction = llmRecommendedAction || getRecommendedAction(category, urgency, message)
       
       const analysisResult = {
         message,
