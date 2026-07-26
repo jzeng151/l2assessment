@@ -7,6 +7,7 @@ function HistoryPage() {
   const [urgencyFilter, setUrgencyFilter] = useState('all')
   const [sortBy, setSortBy] = useState('newest')
   const [expandedIndex, setExpandedIndex] = useState(null)
+  const [isClearConfirmationOpen, setIsClearConfirmationOpen] = useState(false)
 
   useEffect(() => {
     loadHistory()
@@ -18,10 +19,9 @@ function HistoryPage() {
   }
 
   const clearHistory = () => {
-    if (window.confirm('Are you sure you want to clear all history?')) {
-      localStorage.setItem('triageHistory', '[]')
-      setHistory([])
-    }
+    localStorage.setItem('triageHistory', '[]')
+    setHistory([])
+    setIsClearConfirmationOpen(false)
   }
 
   const sortedHistory = [...history].sort((a, b) => {
@@ -47,7 +47,7 @@ function HistoryPage() {
             </div>
             {history.length > 0 && (
               <button
-                onClick={clearHistory}
+                onClick={() => setIsClearConfirmationOpen(true)}
                 className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 font-semibold"
               >
                 Clear All
@@ -211,6 +211,42 @@ function HistoryPage() {
           ))}
         </div>
       </div>
+
+      {isClearConfirmationOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 px-4"
+          onClick={() => setIsClearConfirmationOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="clear-history-title"
+            className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h2 id="clear-history-title" className="text-xl font-bold text-gray-900">
+              Clear all history?
+            </h2>
+            <p className="mt-2 text-gray-600">
+              This will permanently remove every saved message analysis. This action cannot be undone.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setIsClearConfirmationOpen(false)}
+                className="rounded-lg border border-gray-300 px-4 py-2 font-semibold text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={clearHistory}
+                className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
+              >
+                Yes, clear history
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
