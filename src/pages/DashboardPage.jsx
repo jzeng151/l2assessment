@@ -47,6 +47,11 @@ function DashboardPage() {
     setUrgencyData(urgency)
   }
 
+  const topCategory = categoryData.reduce(
+    (currentTop, category) => !currentTop || category.count > currentTop.count ? category : currentTop,
+    null
+  )
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4">
@@ -141,6 +146,9 @@ function DashboardPage() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
           <h2 className="text-lg font-bold text-blue-900 mb-2">💡 Insights</h2>
           <div className="space-y-2 text-sm text-blue-800">
+            {topCategory && (
+              <p>📊 {topCategory.name} is the most common category, with {topCategory.count} of {stats.total} analyzed messages</p>
+            )}
             {stats.highUrgencyPercent > 30 && (
               <p>⚠️ High urgency messages represent {stats.highUrgencyPercent}% of total volume - consider additional support resources</p>
             )}
