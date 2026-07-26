@@ -1,3 +1,77 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark .bg-gray-50 {
+  background-color: #111827;
+}
+
+html.dark .bg-white,
+html.dark .bg-gray-100 {
+  background-color: #1f2937;
+}
+
+html.dark .bg-gray-200 {
+  background-color: #374151;
+}
+
+html.dark .bg-blue-50 {
+  background-color: #172554;
+}
+
+html.dark .bg-green-50 {
+  background-color: #052e16;
+}
+
+html.dark .bg-purple-50 {
+  background-color: #2e1065;
+}
+
+html.dark .text-blue-600 {
+  color: #93c5fd;
+}
+
+html.dark .text-green-600 {
+  color: #86efac;
+}
+
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-gray-700 {
+  color: #f3f4f6;
+}
+
+html.dark .text-gray-600,
+html.dark .text-gray-500,
+html.dark .text-gray-400 {
+  color: #d1d5db;
+}
+
+html.dark .border-gray-200,
+html.dark .border-gray-300 {
+  border-color: #4b5563;
+}
+
+html.dark .border-blue-200 {
+  border-color: #1d4ed8;
+}
+
+html.dark .border-green-200 {
+  border-color: #166534;
+}
+
+html.dark .hover\:bg-gray-50:hover,
+html.dark .hover\:bg-gray-100:hover,
+html.dark .hover\:bg-gray-200:hover {
+  background-color: #374151;
+}
+
+html.dark textarea,
+html.dark input {
+  background-color: #111827;
+  color: #f3f4f6;
+}

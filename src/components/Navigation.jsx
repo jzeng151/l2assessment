@@ -1,7 +1,16 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 function Navigation() {
   const location = useLocation()
+  const [isDarkMode, setIsDarkMode] = useState(() =>
+    localStorage.getItem('theme') === 'dark'
+  )
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode)
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light')
+  }, [isDarkMode])
   
   const isActive = (path) => {
     return location.pathname === path
@@ -64,6 +73,15 @@ function Navigation() {
             >
               Dashboard
             </Link>
+            <button
+              type="button"
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="ml-2 rounded px-3 py-2 text-lg leading-none hover:bg-blue-500"
+            >
+              {isDarkMode ? '☀️' : '🌙'}
+            </button>
           </div>
         </div>
       </div>
